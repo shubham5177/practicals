@@ -1,78 +1,70 @@
-# Initialize the game board
 board = [" "] * 9
 
-# Display the board
 def show():
     for i in range(0, 9, 3):
-        print(board[i], "|", board[i+1], "|", board[i+2])
-    print()
+        print(board[i:i+3])
 
-# Check for a winner
-def winner(p):
-    wins = [(0,1,2), (3,4,5), (6,7,8),
-            (0,3,6), (1,4,7), (2,5,8),
-            (0,4,8), (2,4,6)]
-    return any(all(board[i] == p for i in w) for w in wins)
+def win(p):
+    w = [(0,1,2),(3,4,5),(6,7,8),
+         (0,3,6),(1,4,7),(2,5,8),
+         (0,4,8),(2,4,6)]
 
-# Minimax algorithm
-def minimax(is_max):
-    if winner("O"):
-        return 1
-    if winner("X"):
-        return -1
-    if " " not in board:
-        return 0
+    return any(all(board[i] == p for i in x) for x in w)
 
-    scores = []
+def minimax(maxi):
+    if win("Q"): return 1
+    if win("X"): return -1
+    if " " not in board: return 0
+
+    score = []
+
     for i in range(9):
         if board[i] == " ":
-            board[i] = "O" if is_max else "X"
-            scores.append(minimax(not is_max))
+            board[i] = "Q" if maxi else "X"
+            score.append(minimax(not maxi))
             board[i] = " "
 
-    return max(scores) if is_max else min(scores)
+    return max(score) if maxi else min(score)
 
-# Play the game
 while True:
     show()
+    m = int(input("Enter number between 1-9: ")) - 1
 
-    # Human move
-    move = int(input("Enter position (1-9): ")) - 1
-    if move not in range(9) or board[move] != " ":
-        print("Invalid move!")
+    if m not in range(9) or board[m] != " ":
+        print("Invalid move")
         continue
-    board[move] = "X"
 
-    if winner("X"):
+    board[m] = "X"
+
+    if win("X"):
         show()
-        print("You win!")
+        print("You win")
         break
+
     if " " not in board:
         show()
-        print("Draw!")
+        print("Draw")
         break
 
-    # Computer chooses the best move
-    best_score = -float("inf")
-    best_move = -1
+    best, move = -2, -1
 
     for i in range(9):
         if board[i] == " ":
-            board[i] = "O"
-            score = minimax(False)
+            board[i] = "Q"
+            scores = minimax(False)
             board[i] = " "
 
-            if score > best_score:
-                best_score = score
-                best_move = i
+            if scores > best:
+                best, move = scores, i
 
-    board[best_move] = "O"
+    board[move] = "Q"
 
-    if winner("O"):
+    if win("Q"):
         show()
-        print("Computer wins!")
+        print("Computer wins")
         break
+
     if " " not in board:
         show()
-        print("Draw!")
+        print("Draw")
         break
